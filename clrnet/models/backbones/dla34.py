@@ -390,11 +390,12 @@ class DLA(nn.Module):
                               name='dla34',
                               hash='ba72cf86'):
         # fc = self.fc
-        if name.endswith('.pth'):
-            model_weights = torch.load(data + name)
-        else:
-            model_url = get_model_url(data, name, hash)
-            model_weights = model_zoo.load_url(model_url)
+        model_weights = torch.load("/workspace/weights/culane_dla34.pth")
+        # if name.endswith('.pth'):
+        #     model_weights = torch.load(data + name)
+        # else:
+        #     model_url = get_model_url(data, name, hash)
+        #     model_weights = model_zoo.load_url(model_url)
         self.load_state_dict(model_weights, strict=False)
         # self.fc = fc
 
