@@ -3,7 +3,7 @@
 pandas
 addict
 sklearn
-opencv-python
+opencv-python-headless==4.5.5.64
 pytorch_warmup
 scikit-image
 tqdm
