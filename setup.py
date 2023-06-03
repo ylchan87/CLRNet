@@ -82,7 +82,6 @@ install_requires = parse_requirements()
 
 def get_extensions():
     extensions = []
-    return extensions
 
     op_files = glob.glob('./clrnet/ops/csrc/*.c*')
     extension = CUDAExtension
