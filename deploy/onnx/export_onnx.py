@@ -51,6 +51,10 @@ def parse(args):
                       f=args.out_file,
                       input_names=['input'],
                       output_names=['pred'],
+                      dynamic_axes={
+                        'input' : {0 : 'batch_size'},    # variable length axes
+                        'pred'  : {0 : 'batch_size'}
+                      },
                       verbose=False,
                       opset_version=opset_version)
 

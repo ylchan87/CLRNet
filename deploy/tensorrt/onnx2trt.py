@@ -86,6 +86,21 @@ def show_result(cfg_path, input_image, trt_model, out_file='./tmp.png'):
     lanes = [lane.to_array(cfg) for lane in lanes]
     imshow_lanes(data['ori_img'], lanes, out_file=out_file)
 
+def batch_show_result(cfg_path, input_images, trt_model, out_files='./output_%04d.jpg'):
+    cfg = Config.fromfile(cfg_path)
+    net = build_net(cfg)
+    from datetime import datetime
+    tstart = datetime.now()
+    for idx,input_image in enumerate(input_images):
+        print(f"Working on {input_image}")
+        data = preprocess(cfg, input_image)
+        output = inference(data['img'].cuda(), model)
+        lanes = net.get_lanes(output[0])[0]
+        lanes = [lane.to_array(cfg) for lane in lanes]
+        out_file = out_files % idx
+        imshow_lanes(data['ori_img'], lanes, out_file=out_file)
+    print(f"Total process time : {(datetime.now() - tstart).total_seconds()}") 
+
 
 def onnx2tensorrt(cfg, onnx_file,
                   trt_file,
@@ -192,15 +207,23 @@ if __name__ == '__main__':
         min_shape = parse_shape(args.min_shape)
 
     input_config = {
-        'min_shape': min_shape,
-        'opt_shape': input_shape,
-        'max_shape': max_shape,
+        # 'min_shape': min_shape,
+        # 'opt_shape': input_shape,
+        # 'max_shape': max_shape,
+        'min_shape': ( 1,3,320,800),
+        'opt_shape': ( 4,3,320,800),
+        'max_shape': (16,3,320,800),
         'input_shape': input_shape,
         'input_path': args.input_img,
     }
     if args.show:
         model = load_trt_model(args.trt_file)
-        show_result(args.config, args.input_img, model)
+        # show_result(args.config, args.input_img, model)
+
+        from glob import glob 
+        input_images = sorted(glob(args.input_img))
+        batch_show_result(args.config, input_images, model)
+
     else:
         # Create TensorRT engine
         onnx2tensorrt(args.config, args.model,
