@@ -60,6 +60,7 @@ __global__ void nms_kernel(const int64_t n_boxes, const scalar_t nms_overlap_thr
   const int col_size =
         min(n_boxes - col_start * threadsPerBlock, threadsPerBlock);
 
+  // i.e. block_boxes is the box(lane) rearranged by idx
   __shared__ scalar_t block_boxes[threadsPerBlock * PROP_SIZE];
   if (threadIdx.x < col_size) {
     for (int i = 0; i <  PROP_SIZE; ++i) {

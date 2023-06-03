@@ -293,6 +293,11 @@ class CLRHead(nn.Module):
             # end = label_end
             # if the prediction does not start at the bottom of the image,
             # extend its prediction until the x is outside the image
+            # Note: i.e. we keep valid xs (within 0-1), as extented from the predicted start pos 
+            # to the bottom of the img, until we hit the first invalid xs
+            # lane_xs[ 0] : bot of image  (brfore the lane_xs.flip(0) line)
+            # lane_xs[71] : top of image
+
             mask = ~((((lane_xs[:start] >= 0.) & (lane_xs[:start] <= 1.)
                        ).cpu().numpy()[::-1].cumprod()[::-1]).astype(np.bool))
             lane_xs[end + 1:] = -2
@@ -439,7 +444,7 @@ class CLRHead(nn.Module):
 
     def get_lanes(self, output, as_lanes=True):
         '''
-        Convert model output to lanes.
+        Convert model output to lanes.  output's shape : [1,192,78]
         '''
         softmax = nn.Softmax(dim=1)
 
@@ -447,7 +452,7 @@ class CLRHead(nn.Module):
         for predictions in output:
             # filter out the conf lower than conf threshold
             threshold = self.cfg.test_parameters.conf_threshold
-            scores = softmax(predictions[:, :2])[:, 1]
+            scores = softmax(predictions[:, :2])[:, 1]  # the first 2 elem in the 78 is the 2 class?
             keep_inds = scores >= threshold
             predictions = predictions[keep_inds]
             scores = scores[keep_inds]
